@@ -336,13 +336,12 @@ public class TelecomSystemTest extends TelecomTestCase {
         super.tearDown();
     }
 
-    protected ParcelableCall makeConferenceCall(
-            Intent callIntentExtras1, Intent callIntentExtras2) throws Exception {
-        IdPair callId1 = startAndMakeActiveOutgoingCallWithExtras("650-555-1212",
-                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA, callIntentExtras1);
+    protected ParcelableCall makeConferenceCall() throws Exception {
+        IdPair callId1 = startAndMakeActiveOutgoingCall("650-555-1212",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
-        IdPair callId2 = startAndMakeActiveOutgoingCallWithExtras("650-555-1213",
-                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA, callIntentExtras2);
+        IdPair callId2 = startAndMakeActiveOutgoingCall("650-555-1213",
+                mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA);
 
         IInCallAdapter inCallAdapter = mInCallServiceFixtureX.getInCallAdapter();
         inCallAdapter.conference(callId1.mCallId, callId2.mCallId);
@@ -531,17 +530,17 @@ public class TelecomSystemTest extends TelecomTestCase {
             throws Exception {
 
         return startOutgoingPhoneCall(number, phoneAccountHandle, connectionServiceFixture,
-                initiatingUser, VideoProfile.STATE_AUDIO_ONLY, null);
+                initiatingUser, VideoProfile.STATE_AUDIO_ONLY);
     }
 
     protected IdPair startOutgoingPhoneCall(String number, PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
-            int videoState, Intent callIntentExtras) throws Exception {
+            int videoState) throws Exception {
         int startingNumConnections = connectionServiceFixture.mConnectionById.size();
         int startingNumCalls = mInCallServiceFixtureX.mCallById.size();
 
         startOutgoingPhoneCallPendingCreateConnection(number, phoneAccountHandle,
-                connectionServiceFixture, initiatingUser, videoState, callIntentExtras);
+                connectionServiceFixture, initiatingUser, videoState);
 
         return outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
                 phoneAccountHandle, connectionServiceFixture);
@@ -577,7 +576,7 @@ public class TelecomSystemTest extends TelecomTestCase {
         mIsEmergencyCall = true;
         // Call will not use the ordered broadcaster, since it is an Emergency Call
         startOutgoingPhoneCallWaitForBroadcaster(number, phoneAccountHandle,
-                connectionServiceFixture, initiatingUser, videoState, true /*isEmergency*/, null);
+                connectionServiceFixture, initiatingUser, videoState, true /*isEmergency*/);
 
         return outgoingCallCreateConnectionComplete(startingNumConnections, startingNumCalls,
                 phoneAccountHandle, connectionServiceFixture);
@@ -586,7 +585,7 @@ public class TelecomSystemTest extends TelecomTestCase {
     protected void startOutgoingPhoneCallWaitForBroadcaster(String number,
             PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
-            int videoState, boolean isEmergency, Intent actionCallIntent) throws Exception {
+            int videoState, boolean isEmergency) throws Exception {
         reset(connectionServiceFixture.getTestDouble(), mInCallServiceFixtureX.getTestDouble(),
                 mInCallServiceFixtureY.getTestDouble());
 
@@ -599,9 +598,7 @@ public class TelecomSystemTest extends TelecomTestCase {
 
         boolean hasInCallAdapter = mInCallServiceFixtureX.mInCallAdapter != null;
 
-        if (actionCallIntent == null) {
-            actionCallIntent = new Intent();
-        }
+        Intent actionCallIntent = new Intent();
         actionCallIntent.setData(Uri.parse("tel:" + number));
         actionCallIntent.putExtra(Intent.EXTRA_PHONE_NUMBER, number);
         if(isEmergency) {
@@ -641,9 +638,9 @@ public class TelecomSystemTest extends TelecomTestCase {
     protected String startOutgoingPhoneCallPendingCreateConnection(String number,
             PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture, UserHandle initiatingUser,
-            int videoState, Intent callIntentExtras) throws Exception {
+            int videoState) throws Exception {
         startOutgoingPhoneCallWaitForBroadcaster(number,phoneAccountHandle,
-                connectionServiceFixture, initiatingUser, videoState, false /*isEmergency*/, callIntentExtras);
+                connectionServiceFixture, initiatingUser, videoState, false /*isEmergency*/);
 
         ArgumentCaptor<Intent> newOutgoingCallIntent =
                 ArgumentCaptor.forClass(Intent.class);
@@ -727,24 +724,14 @@ public class TelecomSystemTest extends TelecomTestCase {
             PhoneAccountHandle phoneAccountHandle,
             final ConnectionServiceFixture connectionServiceFixture) throws Exception {
         return startIncomingPhoneCall(number, phoneAccountHandle, VideoProfile.STATE_AUDIO_ONLY,
-                connectionServiceFixture, null);
-    }
-
-    protected IdPair startIncomingPhoneCallWithExtras(
-            String number,
-            PhoneAccountHandle phoneAccountHandle,
-            final ConnectionServiceFixture connectionServiceFixture,
-            Bundle extras) throws Exception {
-        return startIncomingPhoneCall(number, phoneAccountHandle, VideoProfile.STATE_AUDIO_ONLY,
-                connectionServiceFixture, extras);
+                connectionServiceFixture);
     }
 
     protected IdPair startIncomingPhoneCall(
             String number,
             PhoneAccountHandle phoneAccountHandle,
             int videoState,
-            final ConnectionServiceFixture connectionServiceFixture,
-            Bundle extras) throws Exception {
+            final ConnectionServiceFixture connectionServiceFixture) throws Exception {
         reset(connectionServiceFixture.getTestDouble(), mInCallServiceFixtureX.getTestDouble(),
                 mInCallServiceFixtureY.getTestDouble());
 
@@ -757,9 +744,7 @@ public class TelecomSystemTest extends TelecomTestCase {
         boolean hasInCallAdapter = mInCallServiceFixtureX.mInCallAdapter != null;
         connectionServiceFixture.mConnectionServiceDelegate.mVideoState = videoState;
 
-        if (extras == null) {
-            extras = new Bundle();
-        }
+        Bundle extras = new Bundle();
         extras.putParcelable(
                 TelecomManager.EXTRA_INCOMING_CALL_ADDRESS,
                 Uri.fromParts(PhoneAccount.SCHEME_TEL, number, null));
@@ -849,16 +834,7 @@ public class TelecomSystemTest extends TelecomTestCase {
             PhoneAccountHandle phoneAccountHandle,
             ConnectionServiceFixture connectionServiceFixture) throws Exception {
         return startAndMakeActiveOutgoingCall(number, phoneAccountHandle, connectionServiceFixture,
-                VideoProfile.STATE_AUDIO_ONLY, null);
-    }
-
-    protected IdPair startAndMakeActiveOutgoingCallWithExtras(
-            String number,
-            PhoneAccountHandle phoneAccountHandle,
-            ConnectionServiceFixture connectionServiceFixture,
-            Intent callIntentExtras) throws Exception {
-        return startAndMakeActiveOutgoingCall(number, phoneAccountHandle, connectionServiceFixture,
-                VideoProfile.STATE_AUDIO_ONLY, callIntentExtras);
+                VideoProfile.STATE_AUDIO_ONLY);
     }
 
     // A simple outgoing call, verifying that the appropriate connection service is contacted,
@@ -866,10 +842,9 @@ public class TelecomSystemTest extends TelecomTestCase {
     protected IdPair startAndMakeActiveOutgoingCall(
             String number,
             PhoneAccountHandle phoneAccountHandle,
-            ConnectionServiceFixture connectionServiceFixture, int videoState,
-            Intent callIntentExtras) throws Exception {
+            ConnectionServiceFixture connectionServiceFixture, int videoState) throws Exception {
         IdPair ids = startOutgoingPhoneCall(number, phoneAccountHandle, connectionServiceFixture,
-                Process.myUserHandle(), videoState, callIntentExtras);
+                Process.myUserHandle(), videoState);
 
         connectionServiceFixture.sendSetDialing(ids.mConnectionId);
         assertEquals(Call.STATE_DIALING, mInCallServiceFixtureX.getCall(ids.mCallId).getState());

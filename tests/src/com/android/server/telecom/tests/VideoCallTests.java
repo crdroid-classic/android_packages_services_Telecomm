@@ -78,7 +78,7 @@ public class VideoCallTests extends TelecomSystemTest {
         // Start an incoming video call.
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA,
-                VideoProfile.STATE_BIDIRECTIONAL, null);
+                VideoProfile.STATE_BIDIRECTIONAL);
 
         verifyAudioRoute(CallAudioState.ROUTE_SPEAKER);
     }
@@ -93,7 +93,7 @@ public class VideoCallTests extends TelecomSystemTest {
         // Start an incoming video call.
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA,
-                VideoProfile.STATE_TX_ENABLED, null);
+                VideoProfile.STATE_TX_ENABLED);
 
         verifyAudioRoute(CallAudioState.ROUTE_SPEAKER);
     }
@@ -108,7 +108,7 @@ public class VideoCallTests extends TelecomSystemTest {
         // Start an incoming video call.
         IdPair ids = startAndMakeActiveOutgoingCall("650-555-1212",
                 mPhoneAccountA0.getAccountHandle(), mConnectionServiceFixtureA,
-                VideoProfile.STATE_AUDIO_ONLY, null);
+                VideoProfile.STATE_AUDIO_ONLY);
 
         verifyAudioRoute(CallAudioState.ROUTE_EARPIECE);
     }
